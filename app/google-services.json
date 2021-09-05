@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "675917480114",
+    "project_id": "loan-monitoring-44550",
+    "storage_bucket": "loan-monitoring-44550.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:675917480114:android:695e4744f95acf577c49ab",
+        "android_client_info": {
+          "package_name": "com.example.loanmonitoring"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "675917480114-6mb3hcgo35scncpts1c2f31q2kl87c6s.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC0BADs6s6BlKdtCGqTsfWElhsO9kumFpM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "675917480114-6mb3hcgo35scncpts1c2f31q2kl87c6s.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
