@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/loansFragment">
+
+    <fragment
+        android:id="@+id/loansFragment"
+        android:name="com.example.loanmonitoring.fragments.LoansFragment"
+        android:label="@string/label_loans"
+        tools:layout="@layout/fragment_loans">
+        <action
+            android:id="@+id/action_loansFragment_to_loanFormFragment"
+            app:destination="@id/loanFormFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/loanFormFragment"
+        android:name="com.example.loanmonitoring.fragments.LoanFormFragment"
+        android:label="@string/label_create_loan"
+        tools:layout="@layout/fragment_loan_form" />
+</navigation>

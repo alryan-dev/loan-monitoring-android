@@ -1,3 +1,13 @@
 <resources>
     <string name="app_name">Loan Monitoring</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="label_create_loan">Create Loan Record</string>
+    <string name="label_save">Save</string>
+    <string name="label_amount">Amount</string>
+    <string name="label_borrower">Borrower</string>
+    <string name="label_lender">Lender</string>
+    <string name="label_description">Description</string>
+    <string name="label_loans">Loans</string>
+    <string name="label_notifications">Notifications</string>
 </resources>
