@@ -58,7 +58,7 @@ class EntryActivity : AppCompatActivity() {
             // Sign in failed. If response is null the user canceled the
             // sign-in flow using the back button. Otherwise check
             // response.getError().getErrorCode() and handle the error.
-            Utils.print(response?.error?.errorCode.toString())
+            Utils.print("Error signing-in: " + response?.error?.errorCode.toString())
         }
     }
 

@@ -10,4 +10,8 @@
     <string name="label_description">Description</string>
     <string name="label_loans">Loans</string>
     <string name="label_notifications">Notifications</string>
+    <string name="helpertext_required">*Required</string>
+    <string name="errortext_required">This field is required</string>
+    <string name="errortext_select_borrower">Invalid input. Please select borrower</string>
+    <string name="errortext_select_lender">Invalid input. Please select lender</string>
 </resources>

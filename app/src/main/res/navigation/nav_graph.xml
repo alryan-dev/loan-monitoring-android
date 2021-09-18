@@ -15,6 +15,7 @@
             android:id="@+id/action_loansFragment_to_loanFormFragment"
             app:destination="@id/loanFormFragment" />
     </fragment>
+
     <fragment
         android:id="@+id/loanFormFragment"
         android:name="com.example.loanmonitoring.fragments.LoanFormFragment"
