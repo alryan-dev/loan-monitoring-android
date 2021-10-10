@@ -12,10 +12,15 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.example.loanmonitoring.R
+import com.example.loanmonitoring.Utils.toUserModel
+import com.example.loanmonitoring.models.Loan
 import com.example.loanmonitoring.viewmodels.LoanViewModel
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputLayout
+import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.AndroidEntryPoint
+import java.util.*
+
 
 @AndroidEntryPoint
 class LoanFormFragment : Fragment() {
@@ -33,23 +38,9 @@ class LoanFormFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         fragmentView = inflater.inflate(R.layout.fragment_loan_form, container, false)
+        initData()
 
-        // Init data and set observers
-        loanViewModel.usersLiveData.observe(viewLifecycleOwner, {
-            users.clear()
-            for (user in it) users.add(user.name)
-        })
-        loanViewModel.fetchUsers()
-
-        loanViewModel.userSavedLiveData.value = false
-        loanViewModel.userSavedLiveData.observe(viewLifecycleOwner, {
-            if (it) {
-                findNavController().popBackStack()
-                Snackbar.make(coordinatorLayout, "Saved!", Snackbar.LENGTH_LONG).show()
-            }
-        })
-
-        // init fields
+        // Initialize fields
         tilAmount = fragmentView.findViewById(R.id.tilAmount)
         tilDescription = fragmentView.findViewById(R.id.tilDescription)
         coordinatorLayout = requireActivity().findViewById(R.id.coordinatorLayout)
@@ -61,6 +52,25 @@ class LoanFormFragment : Fragment() {
         }
 
         return fragmentView
+    }
+
+    private fun initData() {
+        // Fetch users and set an observer for it
+        loanViewModel.usersLiveData.observe(viewLifecycleOwner, {
+            users.clear()
+            for (user in it) users.add(user.displayName)
+        })
+        loanViewModel.fetchUsers()
+
+        // Set observer when loan is saved
+        loanViewModel.loanSavedLiveData.value = false
+        loanViewModel.loanSavedLiveData.observe(viewLifecycleOwner, {
+            if (it) {
+                findNavController().popBackStack()
+                Snackbar.make(coordinatorLayout, "Saved!", Snackbar.LENGTH_LONG).show()
+                loanViewModel.fetchLoans()
+            }
+        })
     }
 
     private fun initBorrowerLenderFields() {
@@ -107,19 +117,23 @@ class LoanFormFragment : Fragment() {
     }
 
     private fun saveLoan() {
-        val loan = HashMap<String, Any>()
-        loan["amount"] = tilAmount.editText!!.text.toString().toDouble()
+        val loan = Loan()
+        loan.amount = tilAmount.editText!!.text.toString().toDouble()
+        loan.description =
+            if (tilDescription.editText!!.text.isNotEmpty()) tilDescription.editText!!.text.toString()
+            else ""
+        loan.status = "ACTIVE"
+        loan.createdBy = FirebaseAuth.getInstance().currentUser.toUserModel()
+        loan.createdOn = Calendar.getInstance()
 
+        // Set borrower and lender
         for (user in loanViewModel.usersLiveData.value!!) {
-            if (user.name == tilBorrower.editText!!.text.toString())
-                loan["borrower"] = user
+            if (user.displayName == tilBorrower.editText!!.text.toString())
+                loan.borrower = user
 
-            if (user.name == tilLender.editText!!.text.toString())
-                loan["lender"] = user
+            if (user.displayName == tilLender.editText!!.text.toString())
+                loan.lender = user
         }
-
-        loan["description"] =
-            if (tilDescription.editText!!.text.isNotEmpty()) tilDescription.editText!!.text.toString() else ""
 
         loanViewModel.saveLoan(loan)
     }

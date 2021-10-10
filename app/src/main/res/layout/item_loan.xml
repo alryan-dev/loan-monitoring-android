@@ -1,13 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="8dp">
 
     <TextView
-        android:id="@+id/tvLoanName"
+        android:id="@+id/tvAmount"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="TextView" />
+        android:text="@string/label_amount"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/tvBorrower"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/label_borrower"
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/tvLender"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/label_lender"
+        android:textSize="16sp" />
 </LinearLayout>

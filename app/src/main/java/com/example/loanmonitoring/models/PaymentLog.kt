@@ -7,7 +7,7 @@ class PaymentLog(
     var amount: Double = 0.0,
     var date: Calendar = Calendar.getInstance(),
     var description: String = "",
-    var createdBy: User? = null,
+    var createdBy: UserModel? = null,
     var lenderConfirmed: Boolean = false,
 ) {
 }

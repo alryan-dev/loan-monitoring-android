@@ -9,17 +9,15 @@ import com.example.loanmonitoring.R
 import com.example.loanmonitoring.models.Loan
 
 class LoansRvAdapter(
-    private var loanList: List<Loan>,
+    private var loansList: List<Loan>,
     private val onItemSelectListener: OnItemSelectListener,
 ) :
     RecyclerView.Adapter<LoansRvAdapter.ViewHolder>() {
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val tvLoanName: TextView
-
-        init {
-            tvLoanName = view.findViewById(R.id.tvLoanName)
-        }
+        val tvAmount: TextView = view.findViewById(R.id.tvAmount)
+        val tvBorrower: TextView = view.findViewById(R.id.tvBorrower)
+        val tvLender: TextView = view.findViewById(R.id.tvLender)
     }
 
     interface OnItemSelectListener {
@@ -33,10 +31,19 @@ class LoansRvAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.tvLoanName.text = loanList[position].totalAmount.toString()
+        val amount = "₱" + String.format("%.2f", loansList[position].amount)
+        holder.tvAmount.text = amount
+
+        val borrower =
+            holder.itemView.context.getString(R.string.label_borrower) + ": " + loansList[position].borrower?.displayName
+        holder.tvBorrower.text = borrower
+
+        val lender =
+            holder.itemView.context.getString(R.string.label_lender) + ": " + loansList[position].lender?.displayName
+        holder.tvLender.text = lender
     }
 
     override fun getItemCount(): Int {
-        return loanList.size
+        return loansList.size
     }
 }

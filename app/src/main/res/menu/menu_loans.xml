@@ -4,12 +4,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/action_notifications"
-        app:showAsAction="always"
-        android:icon="@drawable/ic_notifications"
-        android:title="@string/label_notifications" />
-
-    <item
         android:id="@+id/action_loansFragment_to_loanFormFragment"
         app:showAsAction="always"
         android:icon="@drawable/ic_add"
