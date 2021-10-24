@@ -1,18 +1,15 @@
 package com.example.loanmonitoring.activities
 
 import android.os.Bundle
-import android.view.MenuItem
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
-import androidx.navigation.ui.onNavDestinationSelected
-import androidx.navigation.ui.setupActionBarWithNavController
 import com.example.loanmonitoring.R
 import com.example.loanmonitoring.viewmodels.LoanViewModel
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -29,27 +26,20 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupAppBar() {
-        val toolbar = findViewById<Toolbar>(R.id.toolbar)
-        setSupportActionBar(toolbar)
-
         val navHostFragment =
             supportFragmentManager.findFragmentById(R.id.fragmentContainerView) as NavHostFragment
         navController = navHostFragment.navController
         appBarConfiguration = AppBarConfiguration(navController.graph)
-        setupActionBarWithNavController(navController, appBarConfiguration)
 
-        // navController.addOnDestinationChangedListener { _, destination, _ ->
-        //     if (destination.id == R.id.alarmFormFragment) {
-        //         tbAlarms.setNavigationIcon(R.drawable.ic_close)
-        //     }
-        // }
-    }
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            val fabAddPayment = findViewById<FloatingActionButton>(R.id.fabAddPayment)
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        // if (item.itemId == R.id.action_alarms_fragment_to_alarm_form_fragment) {
-        //     alarmsViewModel.alarmFormLiveData.value = Alarm()
-        // }
-        return item.onNavDestinationSelected(navController) || super.onOptionsItemSelected(item)
+            if (destination.id == R.id.loanFragment) {
+                fabAddPayment.show()
+            } else {
+                fabAddPayment.hide()
+            }
+        }
     }
 
     override fun onSupportNavigateUp(): Boolean {

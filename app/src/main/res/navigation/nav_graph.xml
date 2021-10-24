@@ -14,6 +14,9 @@
         <action
             android:id="@+id/action_loansFragment_to_loanFormFragment"
             app:destination="@id/loanFormFragment" />
+        <action
+            android:id="@+id/action_loansFragment_to_loanDetailsFragment"
+            app:destination="@id/loanFragment" />
     </fragment>
 
     <fragment
@@ -21,4 +24,19 @@
         android:name="com.example.loanmonitoring.fragments.LoanFormFragment"
         android:label="@string/label_create_loan"
         tools:layout="@layout/fragment_loan_form" />
+
+    <fragment
+        android:id="@+id/loanFragment"
+        android:name="com.example.loanmonitoring.fragments.LoanFragment"
+        tools:layout="@layout/fragment_loan" >
+        <action
+            android:id="@+id/action_loanFragment_to_paymentFormFragment"
+            app:destination="@id/paymentFormFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/paymentFormFragment"
+        android:name="com.example.loanmonitoring.fragments.PaymentFormFragment"
+        android:label="@string/label_add_payment"
+        tools:layout="@layout/fragment_payment_form" />
 </navigation>

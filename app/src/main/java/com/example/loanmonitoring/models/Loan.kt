@@ -9,7 +9,7 @@ class Loan(
     var lender: UserModel? = null,
     var borrower: UserModel? = null,
     var description: String = "",
-    var status: String = "PENDING",
+    var status: String = "ACTIVE",
     var createdBy: UserModel? = null,
     var createdOn: Calendar? = null,
 ) {

@@ -1,7 +1,5 @@
 <resources>
     <string name="app_name">Loan Monitoring</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="label_create_loan">Create Loan Record</string>
     <string name="label_save">Save</string>
     <string name="label_amount">Amount</string>
@@ -14,4 +12,13 @@
     <string name="errortext_required">This field is required</string>
     <string name="errortext_select_borrower">Invalid input. Please select borrower</string>
     <string name="errortext_select_lender">Invalid input. Please select lender</string>
+    <string name="label_loan_details">Loan Details</string>
+    <string name="label_remaining_amount">Remaining Amount</string>
+    <string name="label_expenses">Expenses</string>
+    <string name="label_details">Details</string>
+    <string name="description_add_payment">Add Payment</string>
+    <string name="label_created_by">Created By</string>
+    <string name="label_created_on">Created On</string>
+    <string name="label_add_payment">Add Payment</string>
+    <string name="label_date">Date</string>
 </resources>

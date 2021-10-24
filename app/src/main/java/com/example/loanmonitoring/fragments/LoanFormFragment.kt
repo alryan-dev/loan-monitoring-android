@@ -7,14 +7,19 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.Button
+import androidx.appcompat.app.AppCompatActivity
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.setupWithNavController
 import com.example.loanmonitoring.R
 import com.example.loanmonitoring.Utils.toUserModel
 import com.example.loanmonitoring.models.Loan
 import com.example.loanmonitoring.viewmodels.LoanViewModel
+import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputLayout
 import com.google.firebase.auth.FirebaseAuth
@@ -32,6 +37,8 @@ class LoanFormFragment : Fragment() {
     private lateinit var tilLender: TextInputLayout
     private lateinit var tilDescription: TextInputLayout
     private lateinit var coordinatorLayout: CoordinatorLayout
+    private lateinit var materialToolbar: MaterialToolbar
+    private lateinit var navController: NavController
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -52,6 +59,14 @@ class LoanFormFragment : Fragment() {
         }
 
         return fragmentView
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        navController = findNavController()
+        val appBarConfiguration = AppBarConfiguration(navController.graph)
+        materialToolbar = view.findViewById(R.id.materialToolbar)
+        materialToolbar.setupWithNavController(navController, appBarConfiguration)
+        (activity as AppCompatActivity).setSupportActionBar(materialToolbar)
     }
 
     private fun initData() {

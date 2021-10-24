@@ -3,6 +3,8 @@ package com.example.loanmonitoring
 import android.util.Log
 import com.example.loanmonitoring.models.UserModel
 import com.google.firebase.auth.FirebaseUser
+import java.text.SimpleDateFormat
+import java.util.*
 
 object Utils {
     fun print(text: String) {
@@ -18,4 +20,7 @@ object Utils {
 
         return user
     }
+
+    fun calendarToString(calendar: Calendar): String =
+        SimpleDateFormat("MMM. dd, yyyy", Locale.getDefault()).format(calendar.time)
 }
