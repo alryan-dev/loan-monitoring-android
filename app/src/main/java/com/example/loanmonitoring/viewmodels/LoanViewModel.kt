@@ -10,6 +10,7 @@ import com.example.loanmonitoring.repository.LoanRepository
 import com.example.loanmonitoring.repository.PaymentRepository
 import com.example.loanmonitoring.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import java.util.*
 import javax.inject.Inject
 
 @HiltViewModel
@@ -20,6 +21,7 @@ class LoanViewModel @Inject constructor(
 ) : ViewModel() {
     val usersLiveData = MutableLiveData<MutableList<UserModel>>()
     val loansLiveData = MutableLiveData<MutableList<Loan>>()
+    val loanPayments = MutableLiveData<MutableList<Payment>>()
     val loanSavedLiveData = MutableLiveData(false)
     val paymentSavedLiveData = MutableLiveData(false)
     val selectedLoan = MutableLiveData<Loan>()
@@ -31,9 +33,23 @@ class LoanViewModel @Inject constructor(
             val loans = mutableListOf<Loan>()
 
             for (document in result)
-                Loan(document).let(loans::add)
+                Loan(document.data as HashMap<*, *>).let(loans::add)
 
             loansLiveData.value = loans
+        }.addOnFailureListener { e ->
+            Utils.print("Error getting documents: " + e.message)
+        }
+    }
+
+    fun fetchLoanPayments(uid: String) {
+        val task = paymentRepository.fetchLoanPayments(uid)
+        task.addOnSuccessListener { result ->
+            val payments = mutableListOf<Payment>()
+
+            for (document in result)
+                Payment(document.data as HashMap<*, *>).let(payments::add)
+
+            loanPayments.value = payments
         }.addOnFailureListener { e ->
             Utils.print("Error getting documents: " + e.message)
         }
@@ -45,7 +61,7 @@ class LoanViewModel @Inject constructor(
             val users = mutableListOf<UserModel>()
 
             for (document in result)
-                UserModel(document.data as java.util.HashMap<*, *>).let(users::add)
+                UserModel(document.data as HashMap<*, *>).let(users::add)
 
             usersLiveData.value = users
         }.addOnFailureListener { e ->

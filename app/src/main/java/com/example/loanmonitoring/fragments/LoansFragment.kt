@@ -34,7 +34,7 @@ class LoansFragment : Fragment() {
         setUpRecyclerView(view)
         setHasOptionsMenu(true)
 
-        // Loans list listener
+        // Set loans listener
         loanViewModel.loansLiveData.observe(viewLifecycleOwner, {
             loansList.clear()
             loansList.addAll(it)
@@ -46,9 +46,9 @@ class LoansFragment : Fragment() {
 
     private fun setUpRecyclerView(view: View) {
         // Set up recyclerview
-        val rvAlarms = view.findViewById<RecyclerView>(R.id.rvLoans)
-        rvAlarms.layoutManager = LinearLayoutManager(context)
-        rvAlarms.addItemDecoration(DividerItemDecoration(context, LinearLayoutManager.VERTICAL))
+        val rvLoans = view.findViewById<RecyclerView>(R.id.rvLoans)
+        rvLoans.layoutManager = LinearLayoutManager(context)
+        rvLoans.addItemDecoration(DividerItemDecoration(context, LinearLayoutManager.VERTICAL))
 
         // Set up adapter
         loansRvAdapter = LoansRvAdapter(loansList, object : LoansRvAdapter.OnItemSelectListener {
@@ -58,7 +58,7 @@ class LoansFragment : Fragment() {
                 findNavController().navigate(action)
             }
         })
-        rvAlarms.adapter = loansRvAdapter
+        rvLoans.adapter = loansRvAdapter
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

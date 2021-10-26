@@ -36,33 +36,27 @@ class LoanFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.fragment_loan, container, false)
-        setUpAmount(view)
-        setUpStatus(view)
-        return view
-    }
-
-    private fun setUpAmount(view: View) {
-        val tvAmount: TextView = view.findViewById(R.id.tvAmount)
-        val formatter = DecimalFormat("#,###.00")
-        val amount = "₱" + formatter.format(loanViewModel.selectedLoan.value?.amount)
-        tvAmount.text = amount
-    }
-
-    private fun setUpStatus(view: View) {
-        val chipStatus: Chip = view.findViewById(R.id.chipStatus)
-        val status: String = loanViewModel.selectedLoan.value?.status ?: ""
-        chipStatus.text = status.lowercase().capitalize()
-
-        if (status == "ACTIVE") {
-            chipStatus.setTextColor(Color.parseColor("#FFA500"))
-        } else {
-            chipStatus.setTextColor(Color.parseColor("#00C853"))
-        }
+        return inflater.inflate(R.layout.fragment_loan, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        // Init data
+        loanViewModel.loanPayments.observe(viewLifecycleOwner, { payments ->
+            loanViewModel.selectedLoan.value?.let { loan ->
+                var remainingAmount = loan.amount
+                payments.forEach { payment -> remainingAmount -= payment.amount }
+                setUpRemainingAmount(view, remainingAmount)
+            }
+        })
+
+        loanViewModel.selectedLoan.value?.let { loan ->
+            setUpRemainingAmount(view, loan.amount)
+            loanViewModel.fetchLoanPayments(loan.uid)
+        }
+
+        // Set up views
         setUpToolbar(view)
+        setUpLoanStatus(view)
         setUpViewPager(view)
     }
 
@@ -79,8 +73,27 @@ class LoanFragment : Fragment() {
         )
     }
 
+    private fun setUpRemainingAmount(view: View, remainingAmount: Double) {
+        val tvRemainingAmount: TextView = view.findViewById(R.id.tvRemainingAmount)
+        val formatter = DecimalFormat("#,###.00")
+        val amount = "₱" + formatter.format(remainingAmount)
+        tvRemainingAmount.text = amount
+    }
+
+    private fun setUpLoanStatus(view: View) {
+        val chipStatus: Chip = view.findViewById(R.id.chipStatus)
+        val status: String = loanViewModel.selectedLoan.value?.status ?: ""
+        chipStatus.text = status.lowercase().capitalize()
+
+        if (status == "ACTIVE") {
+            chipStatus.setTextColor(Color.parseColor("#FFA500"))
+        } else {
+            chipStatus.setTextColor(Color.parseColor("#00C853"))
+        }
+    }
+
     private fun setUpViewPager(view: View) {
-        // Setup ViewPager
+        // Set up ViewPager
         val vpLoanDetails: ViewPager2 = view.findViewById(R.id.vpLoanDetails)
         vpLoanDetails.adapter = ViewPagerAdapter(
             activity as FragmentActivity, listOf(LoanPaymentsFragment(), LoanDetailsFragment())
@@ -91,7 +104,6 @@ class LoanFragment : Fragment() {
             override fun onPageSelected(position: Int) {
                 val fabAddPayment =
                     requireActivity().findViewById<FloatingActionButton>(R.id.fabAddPayment)
-
                 if (position == 0) fabAddPayment.show()
                 else fabAddPayment.hide()
             }

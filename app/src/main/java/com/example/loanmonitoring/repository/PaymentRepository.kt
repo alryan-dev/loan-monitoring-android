@@ -9,8 +9,8 @@ import javax.inject.Inject
 class PaymentRepository @Inject constructor(
     private val db: FirebaseFirestore
 ) {
-    fun fetchAll(): Task<QuerySnapshot> {
-        return db.collection("payments").get()
+    fun fetchLoanPayments(uid: String): Task<QuerySnapshot> {
+        return db.collection("payments").whereEqualTo("loan.uid", uid).get()
     }
 
     fun save(loan: HashMap<String, Any>): Task<DocumentReference> {
