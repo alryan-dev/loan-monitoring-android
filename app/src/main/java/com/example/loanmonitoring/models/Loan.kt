@@ -1,5 +1,6 @@
 package com.example.loanmonitoring.models
 
+import com.google.firebase.firestore.QueryDocumentSnapshot
 import java.util.*
 
 class Loan(
@@ -24,6 +25,22 @@ class Loan(
         // Convert createdOn to a Calendar object
         Calendar.getInstance().let { calendar ->
             calendar.timeInMillis = map["createdOn"] as Long
+            this.createdOn = calendar
+        }
+    }
+
+    constructor(queryDocumentSnapshot: QueryDocumentSnapshot) : this(
+        uid = queryDocumentSnapshot.id,
+        amount = queryDocumentSnapshot.data["amount"].toString().toDouble(),
+        lender = UserModel(queryDocumentSnapshot.data["lender"] as HashMap<*, *>),
+        borrower = UserModel(queryDocumentSnapshot.data["borrower"] as HashMap<*, *>),
+        description = queryDocumentSnapshot.data["description"].toString(),
+        status = queryDocumentSnapshot.data["status"].toString(),
+        createdBy = UserModel(queryDocumentSnapshot.data["createdBy"] as HashMap<*, *>),
+    ) {
+        // Convert createdOn to a Calendar object
+        Calendar.getInstance().let { calendar ->
+            calendar.timeInMillis = queryDocumentSnapshot.data["createdOn"] as Long
             this.createdOn = calendar
         }
     }

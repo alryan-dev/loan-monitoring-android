@@ -31,13 +31,14 @@ class MainActivity : AppCompatActivity() {
         navController = navHostFragment.navController
         appBarConfiguration = AppBarConfiguration(navController.graph)
 
+        // Check current destination
         navController.addOnDestinationChangedListener { _, destination, _ ->
-            val fabAddPayment = findViewById<FloatingActionButton>(R.id.fabAddPayment)
+            val fabAdd = findViewById<FloatingActionButton>(R.id.fabAdd)
 
-            if (destination.id == R.id.loanFragment) {
-                fabAddPayment.show()
+            if (destination.id == R.id.loanFragment || destination.id == R.id.loansFragment) {
+                fabAdd.show()
             } else {
-                fabAddPayment.hide()
+                fabAdd.hide()
             }
         }
     }

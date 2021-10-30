@@ -55,7 +55,6 @@ class PaymentFormFragment : Fragment() {
             if (it) {
                 findNavController().popBackStack()
                 Snackbar.make(coordinatorLayout, "Saved!", Snackbar.LENGTH_LONG).show()
-                // loanViewModel.fetchLoans()
             }
         })
 

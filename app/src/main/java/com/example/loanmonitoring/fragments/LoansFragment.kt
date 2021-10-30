@@ -1,5 +1,6 @@
 package com.example.loanmonitoring.fragments
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.*
 import androidx.appcompat.app.AppCompatActivity
@@ -14,10 +15,13 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.loanmonitoring.R
+import com.example.loanmonitoring.activities.EntryActivity
 import com.example.loanmonitoring.adapters.LoansRvAdapter
 import com.example.loanmonitoring.models.Loan
 import com.example.loanmonitoring.viewmodels.LoanViewModel
+import com.firebase.ui.auth.AuthUI
 import com.google.android.material.appbar.MaterialToolbar
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 class LoansFragment : Fragment() {
     private val loanViewModel: LoanViewModel by activityViewModels()
@@ -67,13 +71,36 @@ class LoansFragment : Fragment() {
         materialToolbar = view.findViewById(R.id.materialToolbar)
         materialToolbar.setupWithNavController(navController, appBarConfiguration)
         (activity as AppCompatActivity).setSupportActionBar(materialToolbar)
+
+        setUpAddLoanBtn()
+    }
+
+    private fun setUpAddLoanBtn() {
+        val fabAddLoan: FloatingActionButton = requireActivity().findViewById(R.id.fabAdd)
+        fabAddLoan.setOnClickListener {
+            val action = LoansFragmentDirections.actionLoansFragmentToLoanFormFragment()
+            findNavController().navigate(action)
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.menu_loans, menu)
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return item.onNavDestinationSelected(navController) || super.onOptionsItemSelected(item)
+    override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
+        R.id.action_signout -> {
+            AuthUI.getInstance()
+                .signOut((activity as AppCompatActivity))
+                .addOnCompleteListener {
+                    val intent = Intent(context, EntryActivity::class.java).apply {
+                        flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    }
+                    startActivity(intent)
+                }
+            true
+        }
+        else -> {
+            item.onNavDestinationSelected(navController) || super.onOptionsItemSelected(item)
+        }
     }
 }

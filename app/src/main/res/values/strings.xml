@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Loan Monitoring</string>
-    <string name="label_create_loan">Create Loan Record</string>
+    <string name="label_create_loan">Create Loan</string>
+    <string name="label_logout">Log-out</string>
     <string name="label_save">Save</string>
     <string name="label_amount">Amount</string>
     <string name="label_borrower">Borrower</string>
@@ -22,4 +23,5 @@
     <string name="label_add_payment">Add Payment</string>
     <string name="label_date">Date</string>
     <string name="placeholder_status">Status</string>
+    <string name="description_confirm_payment">Confirm Payment</string>
 </resources>

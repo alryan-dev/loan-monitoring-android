@@ -26,6 +26,7 @@ class LoanViewModel @Inject constructor(
     val paymentSavedLiveData = MutableLiveData(false)
     val selectedLoan = MutableLiveData<Loan>()
     val selectedPayment = MutableLiveData<Payment>()
+    val paymentFormMode = MutableLiveData("")
 
     fun fetchLoans() {
         val task = loanRepository.fetchAll()
@@ -33,7 +34,7 @@ class LoanViewModel @Inject constructor(
             val loans = mutableListOf<Loan>()
 
             for (document in result)
-                Loan(document.data as HashMap<*, *>).let(loans::add)
+                Loan(document).let(loans::add)
 
             loansLiveData.value = loans
         }.addOnFailureListener { e ->
@@ -47,7 +48,7 @@ class LoanViewModel @Inject constructor(
             val payments = mutableListOf<Payment>()
 
             for (document in result)
-                Payment(document.data as HashMap<*, *>).let(payments::add)
+                Payment(document).let(payments::add)
 
             loanPayments.value = payments
         }.addOnFailureListener { e ->
@@ -69,21 +70,52 @@ class LoanViewModel @Inject constructor(
         }
     }
 
-    fun saveLoan(loan: Loan) {
-        val task = loanRepository.save(loan.toMap())
-        task.addOnSuccessListener {
-            loanSavedLiveData.value = true
-        }.addOnFailureListener { e ->
-            Utils.print("Error adding document: " + e.message)
+    fun savePayment(payment: Payment) {
+        if (payment.uid.isNotEmpty()) {
+            val task = paymentRepository.update(payment.toMap())
+            task.addOnSuccessListener {
+                paymentSavedLiveData.value = true
+            }.addOnFailureListener { e ->
+                Utils.print("Error updating document: " + e.message)
+            }
+        } else {
+            val task = paymentRepository.add(payment.toMap())
+            task.addOnSuccessListener {
+                paymentSavedLiveData.value = true
+            }.addOnFailureListener { e ->
+                Utils.print("Error adding document: " + e.message)
+            }
         }
     }
 
-    fun savePayment(payment: Payment) {
-        val task = paymentRepository.save(payment.toMap())
-        task.addOnSuccessListener {
-            paymentSavedLiveData.value = true
-        }.addOnFailureListener { e ->
-            Utils.print("Error adding document: " + e.message)
+    fun saveLoan(loan: Loan) {
+        if (loan.uid.isNotEmpty()) {
+            val task = loanRepository.update(loan.toMap())
+            task.addOnSuccessListener {
+                loanSavedLiveData.value = true
+            }.addOnFailureListener { e ->
+                Utils.print("Error updating document: " + e.message)
+            }
+        } else {
+            val task = loanRepository.add(loan.toMap())
+            task.addOnSuccessListener {
+                loanSavedLiveData.value = true
+            }.addOnFailureListener { e ->
+                Utils.print("Error adding document: " + e.message)
+            }
         }
+    }
+
+    fun computeRemainingAmount(): Double {
+        var remainingAmount = 0.0
+
+        selectedLoan.value?.let { loan ->
+            remainingAmount = loan.amount
+            loanPayments.value?.forEach { payment ->
+                if (payment.lenderConfirmed) remainingAmount -= payment.amount
+            }
+        }
+
+        return remainingAmount
     }
 }

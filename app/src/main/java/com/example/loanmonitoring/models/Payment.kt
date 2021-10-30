@@ -1,5 +1,6 @@
 package com.example.loanmonitoring.models
 
+import com.google.firebase.firestore.QueryDocumentSnapshot
 import java.util.*
 
 class Payment(
@@ -12,22 +13,22 @@ class Payment(
     var createdBy: UserModel? = null,
     var createdOn: Calendar? = null,
 ) {
-    constructor(map: HashMap<*, *>) : this(
-        uid = map["uid"].toString(),
-        loan = Loan(map["loan"] as HashMap<*, *>),
-        amount = map["amount"].toString().toDouble(),
-        description = map["description"].toString(),
-        lenderConfirmed = map["lenderConfirmed"].toString().toBoolean(),
-        createdBy = UserModel(map["createdBy"] as HashMap<*, *>),
+    constructor(queryDocumentSnapshot: QueryDocumentSnapshot) : this(
+        uid = queryDocumentSnapshot.id,
+        loan = Loan(queryDocumentSnapshot.data["loan"] as HashMap<*, *>),
+        amount = queryDocumentSnapshot.data["amount"].toString().toDouble(),
+        description = queryDocumentSnapshot.data["description"].toString(),
+        lenderConfirmed = queryDocumentSnapshot.data["lenderConfirmed"].toString().toBoolean(),
+        createdBy = UserModel(queryDocumentSnapshot.data["createdBy"] as HashMap<*, *>),
     ) {
         // Convert createdOn and date fields to a Calendar object
         Calendar.getInstance().let { calendar ->
-            calendar.timeInMillis = map["createdOn"] as Long
+            calendar.timeInMillis = queryDocumentSnapshot.data["createdOn"] as Long
             this.createdOn = calendar
         }
 
         Calendar.getInstance().let { calendar ->
-            calendar.timeInMillis = map["createdOn"] as Long
+            calendar.timeInMillis = queryDocumentSnapshot.data["createdOn"] as Long
             this.createdOn = calendar
         }
     }

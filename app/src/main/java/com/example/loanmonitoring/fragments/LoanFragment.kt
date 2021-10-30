@@ -1,5 +1,6 @@
 package com.example.loanmonitoring.fragments
 
+import android.app.AlertDialog
 import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -16,6 +17,8 @@ import androidx.navigation.ui.setupWithNavController
 import androidx.viewpager2.widget.ViewPager2
 import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
 import com.example.loanmonitoring.R
+import com.example.loanmonitoring.Utils
+import com.example.loanmonitoring.Utils.toUserModel
 import com.example.loanmonitoring.adapters.ViewPagerAdapter
 import com.example.loanmonitoring.viewmodels.LoanViewModel
 import com.google.android.material.appbar.CollapsingToolbarLayout
@@ -24,6 +27,7 @@ import com.google.android.material.chip.Chip
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
+import com.google.firebase.auth.FirebaseAuth
 import java.text.DecimalFormat
 
 class LoanFragment : Fragment() {
@@ -40,19 +44,36 @@ class LoanFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        // Init data
+        // Set observers
         loanViewModel.loanPayments.observe(viewLifecycleOwner, { payments ->
             loanViewModel.selectedLoan.value?.let { loan ->
+                // Compute loan remaining balance
                 var remainingAmount = loan.amount
-                payments.forEach { payment -> remainingAmount -= payment.amount }
+                payments.forEach { payment ->
+                    if (payment.lenderConfirmed) remainingAmount -= payment.amount
+                }
+
                 setUpRemainingAmount(view, remainingAmount)
+
+                // Check if loan is fully paid
+                if (
+                    loan.lender?.uid == FirebaseAuth.getInstance().currentUser.toUserModel().uid
+                    && remainingAmount <= 0.0
+                    && loan.status == "ACTIVE"
+                )
+                    showCloseLoanDialog()
             }
         })
 
-        loanViewModel.selectedLoan.value?.let { loan ->
-            setUpRemainingAmount(view, loan.amount)
-            loanViewModel.fetchLoanPayments(loan.uid)
-        }
+        loanViewModel.loanSavedLiveData.value = false
+        loanViewModel.loanSavedLiveData.observe(viewLifecycleOwner, {
+            loanViewModel.selectedLoan.value?.let { loan ->
+                if (loan.status == "FULLY PAID") {
+                    setUpLoanStatus(view)
+                    requireActivity().findViewById<FloatingActionButton>(R.id.fabAdd).hide()
+                }
+            }
+        })
 
         // Set up views
         setUpToolbar(view)
@@ -75,7 +96,7 @@ class LoanFragment : Fragment() {
 
     private fun setUpRemainingAmount(view: View, remainingAmount: Double) {
         val tvRemainingAmount: TextView = view.findViewById(R.id.tvRemainingAmount)
-        val formatter = DecimalFormat("#,###.00")
+        val formatter = DecimalFormat("#,##0.00")
         val amount = "₱" + formatter.format(remainingAmount)
         tvRemainingAmount.text = amount
     }
@@ -102,10 +123,11 @@ class LoanFragment : Fragment() {
         // Show/Hide add payment fab
         vpLoanDetails.registerOnPageChangeCallback(object : OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
-                val fabAddPayment =
-                    requireActivity().findViewById<FloatingActionButton>(R.id.fabAddPayment)
-                if (position == 0) fabAddPayment.show()
-                else fabAddPayment.hide()
+                loanViewModel.selectedLoan.value?.let { loan ->
+                    val fabAdd = requireActivity().findViewById<FloatingActionButton>(R.id.fabAdd)
+                    if (position == 0 && loan.status == "ACTIVE") fabAdd.show()
+                    else fabAdd.hide()
+                }
             }
         })
 
@@ -115,5 +137,20 @@ class LoanFragment : Fragment() {
             if (position == 0) tab.text = resources.getString(R.string.label_expenses)
             else tab.text = resources.getString(R.string.label_details)
         }.attach()
+    }
+
+    private fun showCloseLoanDialog() {
+        val builder = AlertDialog.Builder(activity)
+
+        builder.setMessage("Loan is now fully paid. Do you want to close this loan?")
+            .setPositiveButton("Yes") { _, _ ->
+                loanViewModel.selectedLoan.value?.let {
+                    it.status = "FULLY PAID"
+                    loanViewModel.saveLoan(it)
+                }
+            }
+            .setNegativeButton("No", null)
+
+        builder.create().show()
     }
 }

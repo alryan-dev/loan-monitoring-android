@@ -4,9 +4,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/action_loansFragment_to_loanFormFragment"
+        android:id="@+id/action_signout"
         app:showAsAction="always"
-        android:icon="@drawable/ic_add"
-        android:title="@string/label_create_loan" />
+        android:icon="@drawable/ic_logout"
+        android:title="@string/label_logout" />
 
 </menu>
