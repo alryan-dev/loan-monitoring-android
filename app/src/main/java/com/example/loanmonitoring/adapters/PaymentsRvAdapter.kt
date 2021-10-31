@@ -13,7 +13,6 @@ import com.example.loanmonitoring.Utils.toUserModel
 import com.example.loanmonitoring.models.Payment
 import com.example.loanmonitoring.models.UserModel
 import com.google.firebase.auth.FirebaseAuth
-import java.text.DecimalFormat
 
 class PaymentsRvAdapter(
     private var paymentsList: List<Payment>,
@@ -64,12 +63,7 @@ class PaymentsRvAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        // Set amount field
-        val formatter = DecimalFormat("#,###.00")
-        val amount = "₱" + formatter.format(paymentsList[position].amount)
-        holder.tvAmount.text = amount
-
-        // Set date field
+        holder.tvAmount.text = Utils.toCurrencyFormat(paymentsList[position].amount)
         holder.tvDate.text = Utils.calendarToString(paymentsList[position].date)
 
         // Set status field

@@ -6,8 +6,8 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.loanmonitoring.R
+import com.example.loanmonitoring.Utils
 import com.example.loanmonitoring.models.Loan
-import java.text.DecimalFormat
 
 class LoansRvAdapter(
     private var loansList: List<Loan>,
@@ -42,17 +42,19 @@ class LoansRvAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val formatter = DecimalFormat("#,###.00")
-        val amount = "₱" + formatter.format(loansList[position].amount)
-        holder.tvAmount.text = amount
+        holder.tvAmount.text = Utils.toCurrencyFormat(loansList[position].amount)
 
-        val borrower =
-            holder.itemView.context.getString(R.string.label_borrower) + ": " + loansList[position].borrower?.displayName
-        holder.tvBorrower.text = borrower
+        loansList[position].borrower?.let { borrower ->
+            val borrowerName = holder.itemView.context.getString(R.string.label_borrower) +
+                    ": " + Utils.checkCurrentUser(borrower)
+            holder.tvBorrower.text = borrowerName
+        }
 
-        val lender =
-            holder.itemView.context.getString(R.string.label_lender) + ": " + loansList[position].lender?.displayName
-        holder.tvLender.text = lender
+        loansList[position].lender?.let { lender ->
+            val lenderName = holder.itemView.context.getString(R.string.label_lender) +
+                    ": " + Utils.checkCurrentUser(lender)
+            holder.tvLender.text = lenderName
+        }
     }
 
     override fun getItemCount(): Int {

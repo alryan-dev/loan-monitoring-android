@@ -22,13 +22,21 @@ class LoanDetailsFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        // Set amount field
+        val tvAmount: TextView = view.findViewById(R.id.tvAmount)
+        tvAmount.text = Utils.toCurrencyFormat(loanViewModel.selectedLoan.value?.amount ?: 0.0)
+
         // Set lender field
         val tvLender: TextView = view.findViewById(R.id.tvLender)
-        tvLender.text = loanViewModel.selectedLoan.value?.lender?.displayName
+        loanViewModel.selectedLoan.value?.lender?.let { lender ->
+            tvLender.text = Utils.checkCurrentUser(lender)
+        }
 
         // Set borrower field
         val tvBorrower: TextView = view.findViewById(R.id.tvBorrower)
-        tvBorrower.text = loanViewModel.selectedLoan.value?.borrower?.displayName
+        loanViewModel.selectedLoan.value?.borrower?.let { borrower ->
+            tvBorrower.text = Utils.checkCurrentUser(borrower)
+        }
 
         // Set description field
         val tvDescription: TextView = view.findViewById(R.id.tvDescription)
@@ -36,7 +44,9 @@ class LoanDetailsFragment : Fragment() {
 
         // Set createdBy field
         val tvCreatedBy: TextView = view.findViewById(R.id.tvCreatedBy)
-        tvCreatedBy.text = loanViewModel.selectedLoan.value?.createdBy?.displayName
+        loanViewModel.selectedLoan.value?.createdBy?.let { createdBy ->
+            tvCreatedBy.text = Utils.checkCurrentUser(createdBy)
+        }
 
         // Set createdOn field
         val tvCreatedOn: TextView = view.findViewById(R.id.tvCreatedOn)

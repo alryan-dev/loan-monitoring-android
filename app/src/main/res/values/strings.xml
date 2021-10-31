@@ -14,7 +14,7 @@
     <string name="errortext_select_borrower">Invalid input. Please select borrower</string>
     <string name="errortext_select_lender">Invalid input. Please select lender</string>
     <string name="label_loan_details">Loan Details</string>
-    <string name="label_remaining_amount">Remaining Amount</string>
+    <string name="label_remaining_balance">Remaining Balance</string>
     <string name="label_expenses">Expenses</string>
     <string name="label_details">Details</string>
     <string name="description_add_payment">Add Payment</string>

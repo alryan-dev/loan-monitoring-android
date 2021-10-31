@@ -28,7 +28,6 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.google.firebase.auth.FirebaseAuth
-import java.text.DecimalFormat
 
 class LoanFragment : Fragment() {
     private lateinit var collapsingToolbarLayout: CollapsingToolbarLayout
@@ -48,17 +47,17 @@ class LoanFragment : Fragment() {
         loanViewModel.loanPayments.observe(viewLifecycleOwner, { payments ->
             loanViewModel.selectedLoan.value?.let { loan ->
                 // Compute loan remaining balance
-                var remainingAmount = loan.amount
+                var remainingBalance = loan.amount
                 payments.forEach { payment ->
-                    if (payment.lenderConfirmed) remainingAmount -= payment.amount
+                    if (payment.lenderConfirmed) remainingBalance -= payment.amount
                 }
 
-                setUpRemainingAmount(view, remainingAmount)
+                setUpRemainingBalance(view, remainingBalance)
 
                 // Check if loan is fully paid
                 if (
                     loan.lender?.uid == FirebaseAuth.getInstance().currentUser.toUserModel().uid
-                    && remainingAmount <= 0.0
+                    && remainingBalance <= 0.0
                     && loan.status == "ACTIVE"
                 )
                     showCloseLoanDialog()
@@ -94,11 +93,9 @@ class LoanFragment : Fragment() {
         )
     }
 
-    private fun setUpRemainingAmount(view: View, remainingAmount: Double) {
-        val tvRemainingAmount: TextView = view.findViewById(R.id.tvRemainingAmount)
-        val formatter = DecimalFormat("#,##0.00")
-        val amount = "₱" + formatter.format(remainingAmount)
-        tvRemainingAmount.text = amount
+    private fun setUpRemainingBalance(view: View, remainingBalance: Double) {
+        val tvRemainingBalance: TextView = view.findViewById(R.id.tvRemainingBalance)
+        tvRemainingBalance.text = Utils.toCurrencyFormat(remainingBalance)
     }
 
     private fun setUpLoanStatus(view: View) {
