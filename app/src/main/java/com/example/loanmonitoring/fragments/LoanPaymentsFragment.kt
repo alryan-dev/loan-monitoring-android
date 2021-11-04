@@ -31,19 +31,18 @@ class LoanPaymentsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         // Set observers
-        loanViewModel.loanPayments.observe(viewLifecycleOwner, {
+        loanViewModel.paymentSavedLiveData.value = false
+        loanViewModel.paymentSavedLiveData.observe(viewLifecycleOwner, {
+            if (it) loanViewModel.fetchLoanPayments()
+        })
+
+        loanViewModel.loanPayments.observe(viewLifecycleOwner, { payments ->
             paymentsList.clear()
-            paymentsList.addAll(it)
+            paymentsList.addAll(payments)
             paymentsRvAdapter.notifyDataSetChanged()
         })
 
-        loanViewModel.paymentSavedLiveData.observe(viewLifecycleOwner, {
-            loanViewModel.selectedLoan.value?.let { loan ->
-                loanViewModel.fetchLoanPayments(loan.uid)
-            }
-        })
-
-        // Set up views
+        // Set up other views
         setUpAddPaymentBtn()
         setUpRecyclerView(view)
     }
@@ -85,10 +84,7 @@ class LoanPaymentsFragment : Fragment() {
         val builder = AlertDialog.Builder(activity)
 
         builder.setMessage("Confirm Payment?")
-            .setPositiveButton("Confirm") { _, _ ->
-                paymentsList[position].lenderConfirmed = true
-                loanViewModel.savePayment(paymentsList[position])
-            }
+            .setPositiveButton("Confirm") { _, _ -> loanViewModel.confirmPayment(position) }
             .setNegativeButton("Cancel", null)
 
         builder.create().show()

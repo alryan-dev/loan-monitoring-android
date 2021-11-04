@@ -1,49 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    android:padding="8dp"
-    android:weightSum="4">
+<layout>
+    <data>
+        <import type="com.example.loanmonitoring.Utils" />
+        <import type="android.view.View" />
+        <variable
+            name="payment"
+            type="com.example.loanmonitoring.models.Payment" />
+        <variable
+            name="borrower"
+            type="com.example.loanmonitoring.models.UserModel" />
+    </data>
 
     <LinearLayout
-        android:layout_width="0dp"
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="3.5"
-        android:orientation="vertical">
+        android:orientation="horizontal"
+        android:padding="8dp"
+        android:weightSum="4">
 
-        <TextView
-            android:id="@+id/tvAmount"
-            android:layout_width="match_parent"
+        <LinearLayout
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="@string/label_amount"
-            android:textSize="16sp"
-            android:textStyle="bold" />
+            android:layout_weight="3.5"
+            android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/tvDate"
-            android:layout_width="match_parent"
+            <TextView
+                android:id="@+id/tvAmount"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@{Utils.INSTANCE.toCurrencyFormat(payment.amount)}"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvDate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@{Utils.INSTANCE.calendarToString(payment.date)}" />
+
+            <TextView
+                android:id="@+id/tvStatus"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@{payment.lenderConfirmed ? `CONFIRMED` : `PENDING`}"
+                android:textColor="@{payment.lenderConfirmed ? @color/confirmed : @color/pending}" />
+        </LinearLayout>
+
+        <ImageButton
+            android:id="@+id/btnConfirm"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="@string/label_date" />
-
-        <TextView
-            android:id="@+id/tvStatus"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/placeholder_status" />
-
+            android:layout_gravity="center"
+            android:layout_weight=".5"
+            android:background="@android:color/transparent"
+            android:contentDescription="@string/description_confirm_payment"
+            android:visibility="@{Utils.INSTANCE.confirmBtnVisibility(payment, borrower) ? View.GONE : View.VISIBLE}"
+            app:srcCompat="@drawable/ic_check" />
     </LinearLayout>
-
-    <ImageButton
-        android:id="@+id/btnConfirm"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_weight=".5"
-        android:background="@android:color/transparent"
-        android:contentDescription="@string/description_confirm_payment"
-        app:srcCompat="@drawable/ic_check" />
-
-</LinearLayout>
+</layout>

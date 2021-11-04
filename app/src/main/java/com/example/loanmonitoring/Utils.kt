@@ -1,6 +1,7 @@
 package com.example.loanmonitoring
 
 import android.util.Log
+import com.example.loanmonitoring.models.Payment
 import com.example.loanmonitoring.models.UserModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -26,15 +27,23 @@ object Utils {
     fun calendarToString(calendar: Calendar): String =
         SimpleDateFormat("MMM. dd, yyyy", Locale.getDefault()).format(calendar.time)
 
-    fun toCurrencyFormat(amount: Double) : String {
+    fun toCurrencyFormat(amount: Double): String {
         val formatter = DecimalFormat("#,##0.00")
-        return  "₱" + formatter.format(amount)
+        return "₱" + formatter.format(amount)
     }
 
-    fun checkCurrentUser(user: UserModel) : String {
+    fun checkCurrentUser(user: UserModel): String {
         FirebaseAuth.getInstance().currentUser?.let { currentUser ->
             if (currentUser.uid == user.uid) return "You"
         }
         return user.displayName
     }
+
+    fun toCapitalize(text: String): String {
+        return text.lowercase().capitalize()
+    }
+
+    // If any of the conditions is true, hide confirm button
+    fun confirmBtnVisibility(payment: Payment, borrower: UserModel): Boolean =
+        payment.lenderConfirmed || borrower.uid == FirebaseAuth.getInstance().currentUser.toUserModel().uid
 }

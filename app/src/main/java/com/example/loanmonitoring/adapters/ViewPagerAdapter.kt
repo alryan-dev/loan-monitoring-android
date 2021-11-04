@@ -1,14 +1,13 @@
 package com.example.loanmonitoring.adapters
 
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
 
 class ViewPagerAdapter(
-    fragmentActivity: FragmentActivity,
+    parentFragment: Fragment,
     private val fragmentList: List<Fragment>,
 ) :
-    FragmentStateAdapter(fragmentActivity) {
+    FragmentStateAdapter(parentFragment) {
 
     override fun getItemCount(): Int = fragmentList.size
 

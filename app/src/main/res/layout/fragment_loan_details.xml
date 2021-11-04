@@ -1,125 +1,139 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:paddingHorizontal="16dp"
-    android:paddingTop="16dp"
-    tools:context=".fragments.LoanDetailsFragment">
+<layout>
+    <data>
+        <import type="com.example.loanmonitoring.Utils" />
+        <variable
+            name="loanViewModel"
+            type="com.example.loanmonitoring.viewmodels.LoanViewModel" />
+    </data>
 
-    <TextView
+    <LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/label_amount"
-        android:textSize="16sp" />
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:paddingHorizontal="16dp"
+        android:paddingTop="16dp"
+        tools:context=".fragments.LoanDetailsFragment">
 
-    <TextView
-        android:id="@+id/tvAmount"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textSize="16sp"
-        android:textStyle="bold" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/label_amount"
+            android:textSize="16sp" />
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp"
-        android:background="?android:attr/listDivider" />
+        <TextView
+            android:id="@+id/tvAmount"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@{Utils.INSTANCE.toCurrencyFormat(loanViewModel.selectedLoan.amount)}"
+            android:textSize="16sp"
+            android:textStyle="bold" />
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/label_lender"
-        android:textSize="16sp" />
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:background="?android:attr/listDivider" />
 
-    <TextView
-        android:id="@+id/tvLender"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textSize="16sp"
-        android:textStyle="bold" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/label_lender"
+            android:textSize="16sp" />
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp"
-        android:background="?android:attr/listDivider" />
+        <TextView
+            android:id="@+id/tvLender"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@{Utils.INSTANCE.checkCurrentUser(loanViewModel.selectedLoan.lender)}"
+            android:textSize="16sp"
+            android:textStyle="bold" />
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/label_borrower"
-        android:textSize="16sp" />
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:background="?android:attr/listDivider" />
 
-    <TextView
-        android:id="@+id/tvBorrower"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textSize="16sp"
-        android:textStyle="bold" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/label_borrower"
+            android:textSize="16sp" />
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp"
-        android:background="?android:attr/listDivider" />
+        <TextView
+            android:id="@+id/tvBorrower"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@{Utils.INSTANCE.checkCurrentUser(loanViewModel.selectedLoan.borrower)}"
+            android:textSize="16sp"
+            android:textStyle="bold" />
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/label_description"
-        android:textSize="16sp" />
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:background="?android:attr/listDivider" />
 
-    <TextView
-        android:id="@+id/tvDescription"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textSize="16sp"
-        android:textStyle="bold" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/label_description"
+            android:textSize="16sp" />
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp"
-        android:background="?android:attr/listDivider" />
+        <TextView
+            android:id="@+id/tvDescription"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@{loanViewModel.selectedLoan.description}"
+            android:textSize="16sp"
+            android:textStyle="bold" />
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/label_created_by"
-        android:textSize="16sp" />
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:background="?android:attr/listDivider" />
 
-    <TextView
-        android:id="@+id/tvCreatedBy"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textSize="16sp"
-        android:textStyle="bold" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/label_created_by"
+            android:textSize="16sp" />
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp"
-        android:background="?android:attr/listDivider" />
+        <TextView
+            android:id="@+id/tvCreatedBy"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@{Utils.INSTANCE.checkCurrentUser(loanViewModel.selectedLoan.createdBy)}"
+            android:textSize="16sp"
+            android:textStyle="bold" />
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/label_created_on"
-        android:textSize="16sp" />
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:background="?android:attr/listDivider" />
 
-    <TextView
-        android:id="@+id/tvCreatedOn"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textSize="16sp"
-        android:textStyle="bold" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/label_created_on"
+            android:textSize="16sp" />
 
-</LinearLayout>
+        <TextView
+            android:id="@+id/tvCreatedOn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@{Utils.INSTANCE.calendarToString(loanViewModel.selectedLoan.createdOn)}"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+</layout>

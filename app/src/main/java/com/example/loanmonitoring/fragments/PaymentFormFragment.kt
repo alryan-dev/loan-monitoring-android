@@ -47,9 +47,10 @@ class PaymentFormFragment : Fragment() {
             if (it.uid.isNotEmpty()) payment = it
         }
 
-        // Set observer when payment is saved
+        // Set observer for when payment is saved
         val coordinatorLayout: CoordinatorLayout =
             requireActivity().findViewById(R.id.coordinatorLayout)
+
         loanViewModel.paymentSavedLiveData.value = false
         loanViewModel.paymentSavedLiveData.observe(viewLifecycleOwner, {
             if (it) {

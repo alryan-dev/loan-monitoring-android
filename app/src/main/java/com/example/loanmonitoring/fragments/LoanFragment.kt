@@ -1,14 +1,12 @@
 package com.example.loanmonitoring.fragments
 
 import android.app.AlertDialog
-import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
+import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
@@ -17,17 +15,14 @@ import androidx.navigation.ui.setupWithNavController
 import androidx.viewpager2.widget.ViewPager2
 import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
 import com.example.loanmonitoring.R
-import com.example.loanmonitoring.Utils
-import com.example.loanmonitoring.Utils.toUserModel
 import com.example.loanmonitoring.adapters.ViewPagerAdapter
+import com.example.loanmonitoring.databinding.FragmentLoanBinding
 import com.example.loanmonitoring.viewmodels.LoanViewModel
 import com.google.android.material.appbar.CollapsingToolbarLayout
 import com.google.android.material.appbar.MaterialToolbar
-import com.google.android.material.chip.Chip
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
-import com.google.firebase.auth.FirebaseAuth
 
 class LoanFragment : Fragment() {
     private lateinit var collapsingToolbarLayout: CollapsingToolbarLayout
@@ -38,45 +33,37 @@ class LoanFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.fragment_loan, container, false)
+    ): View {
+        // Create binding
+        val fragmentLoanBinding = DataBindingUtil.inflate<FragmentLoanBinding>(
+            inflater,
+            R.layout.fragment_loan,
+            container,
+            false
+        )
+        fragmentLoanBinding.loanViewModel = loanViewModel
+        fragmentLoanBinding.lifecycleOwner = viewLifecycleOwner
+
+        return fragmentLoanBinding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         // Set observers
-        loanViewModel.loanPayments.observe(viewLifecycleOwner, { payments ->
-            loanViewModel.selectedLoan.value?.let { loan ->
-                // Compute loan remaining balance
-                var remainingBalance = loan.amount
-                payments.forEach { payment ->
-                    if (payment.lenderConfirmed) remainingBalance -= payment.amount
-                }
-
-                setUpRemainingBalance(view, remainingBalance)
-
-                // Check if loan is fully paid
-                if (
-                    loan.lender?.uid == FirebaseAuth.getInstance().currentUser.toUserModel().uid
-                    && remainingBalance <= 0.0
-                    && loan.status == "ACTIVE"
-                )
-                    showCloseLoanDialog()
-            }
+        loanViewModel.loanPayments.value = mutableListOf()
+        loanViewModel.loanPayments.observe(viewLifecycleOwner, {
+            loanViewModel.computeRemainingBalance()
+            if (loanViewModel.loanFullyPaid()) showCloseLoanDialog()
         })
 
-        loanViewModel.loanSavedLiveData.value = false
-        loanViewModel.loanSavedLiveData.observe(viewLifecycleOwner, {
-            loanViewModel.selectedLoan.value?.let { loan ->
-                if (loan.status == "FULLY PAID") {
-                    setUpLoanStatus(view)
-                    requireActivity().findViewById<FloatingActionButton>(R.id.fabAdd).hide()
-                }
-            }
+        loanViewModel.selectedLoan.observe(viewLifecycleOwner, {
+            if (it.status == "FULLY PAID")
+                requireActivity().findViewById<FloatingActionButton>(R.id.fabAdd).hide()
         })
 
-        // Set up views
+        loanViewModel.fetchLoanPayments()
+
+        // Set up other views
         setUpToolbar(view)
-        setUpLoanStatus(view)
         setUpViewPager(view)
     }
 
@@ -93,31 +80,15 @@ class LoanFragment : Fragment() {
         )
     }
 
-    private fun setUpRemainingBalance(view: View, remainingBalance: Double) {
-        val tvRemainingBalance: TextView = view.findViewById(R.id.tvRemainingBalance)
-        tvRemainingBalance.text = Utils.toCurrencyFormat(remainingBalance)
-    }
-
-    private fun setUpLoanStatus(view: View) {
-        val chipStatus: Chip = view.findViewById(R.id.chipStatus)
-        val status: String = loanViewModel.selectedLoan.value?.status ?: ""
-        chipStatus.text = status.lowercase().capitalize()
-
-        if (status == "ACTIVE") {
-            chipStatus.setTextColor(Color.parseColor("#FFA500"))
-        } else {
-            chipStatus.setTextColor(Color.parseColor("#00C853"))
-        }
-    }
-
     private fun setUpViewPager(view: View) {
-        // Set up ViewPager
+        // Set up ViewPager2
         val vpLoanDetails: ViewPager2 = view.findViewById(R.id.vpLoanDetails)
         vpLoanDetails.adapter = ViewPagerAdapter(
-            activity as FragmentActivity, listOf(LoanPaymentsFragment(), LoanDetailsFragment())
+            this,
+            listOf(LoanPaymentsFragment(), LoanDetailsFragment())
         )
 
-        // Show/Hide add payment fab
+        // Show or hide add payment fab
         vpLoanDetails.registerOnPageChangeCallback(object : OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 loanViewModel.selectedLoan.value?.let { loan ->
@@ -128,7 +99,7 @@ class LoanFragment : Fragment() {
             }
         })
 
-        // Link the TabLayout with the ViewPager
+        // Link the TabLayout with the ViewPager2
         val tlLoanDetails: TabLayout = view.findViewById(R.id.tlLoanDetails)
         TabLayoutMediator(tlLoanDetails, vpLoanDetails) { tab, position ->
             if (position == 0) tab.text = resources.getString(R.string.label_expenses)
@@ -140,12 +111,7 @@ class LoanFragment : Fragment() {
         val builder = AlertDialog.Builder(activity)
 
         builder.setMessage("Loan is now fully paid. Do you want to close this loan?")
-            .setPositiveButton("Yes") { _, _ ->
-                loanViewModel.selectedLoan.value?.let {
-                    it.status = "FULLY PAID"
-                    loanViewModel.saveLoan(it)
-                }
-            }
+            .setPositiveButton("Yes") { _, _ -> loanViewModel.closeLoan() }
             .setNegativeButton("No", null)
 
         builder.create().show()
