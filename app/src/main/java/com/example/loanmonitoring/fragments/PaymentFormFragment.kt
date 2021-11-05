@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.os.Bundle
 import android.text.InputType
 import android.view.*
-import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.fragment.app.Fragment
@@ -17,6 +16,8 @@ import androidx.navigation.ui.setupWithNavController
 import com.example.loanmonitoring.R
 import com.example.loanmonitoring.Utils
 import com.example.loanmonitoring.Utils.toUserModel
+import com.example.loanmonitoring.activities.MainActivity
+import com.example.loanmonitoring.databinding.FragmentPaymentFormBinding
 import com.example.loanmonitoring.models.Payment
 import com.example.loanmonitoring.viewmodels.LoanViewModel
 import com.google.android.material.appbar.MaterialToolbar
@@ -29,27 +30,28 @@ import java.util.*
 class PaymentFormFragment : Fragment() {
     private lateinit var materialToolbar: MaterialToolbar
     private lateinit var navController: NavController
-    private lateinit var tilAmount: TextInputLayout
     private lateinit var tilDate: TextInputLayout
-    private lateinit var tilDescription: TextInputLayout
     private var payment: Payment = Payment()
     private val loanViewModel: LoanViewModel by activityViewModels()
+    private var _binding: FragmentPaymentFormBinding? = null
+    private val binding get() = _binding!!
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.fragment_payment_form, container, false)
+    ): View {
+        _binding = FragmentPaymentFormBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        loanViewModel.selectedPayment.value?.let {
-            if (it.uid.isNotEmpty()) payment = it
+        // Init data and set observers
+        loanViewModel.selectedPayment.value?.let { selectedPayment ->
+            if (selectedPayment.uid.isNotEmpty()) payment = selectedPayment
         }
 
-        // Set observer for when payment is saved
         val coordinatorLayout: CoordinatorLayout =
-            requireActivity().findViewById(R.id.coordinatorLayout)
+            (requireActivity() as MainActivity).binding.coordinatorLayout
 
         loanViewModel.paymentSavedLiveData.value = false
         loanViewModel.paymentSavedLiveData.observe(viewLifecycleOwner, {
@@ -59,31 +61,25 @@ class PaymentFormFragment : Fragment() {
             }
         })
 
-        setUpToolbar(view)
-        setUpDateField(view)
-
-        // Set up fields
-        tilAmount = view.findViewById(R.id.tilAmount)
-        tilDescription = view.findViewById(R.id.tilDescription)
-
-        // Set up save button
-        val btnSave = view.findViewById<Button>(R.id.btnSave)
-        btnSave.setOnClickListener { if (validateForm()) savePayment() }
+        // Set up views
+        setUpToolbar()
+        setUpDateField()
+        binding.btnSave.setOnClickListener { if (validateForm()) savePayment() }
     }
 
-    private fun setUpToolbar(view: View) {
+    private fun setUpToolbar() {
         navController = findNavController()
         val appBarConfiguration = AppBarConfiguration(navController.graph)
 
-        materialToolbar = view.findViewById(R.id.materialToolbar)
+        materialToolbar = binding.materialToolbar
         materialToolbar.setupWithNavController(navController, appBarConfiguration)
 
         (activity as AppCompatActivity).setSupportActionBar(materialToolbar)
     }
 
     @SuppressLint("ClickableViewAccessibility")
-    private fun setUpDateField(view: View) {
-        tilDate = view.findViewById(R.id.tilDate)
+    private fun setUpDateField() {
+        tilDate = binding.tilDate
         tilDate.editText?.inputType = InputType.TYPE_NULL
         tilDate.editText?.setText(Utils.calendarToString(payment.date))
 
@@ -114,11 +110,11 @@ class PaymentFormFragment : Fragment() {
 
     private fun validateForm(): Boolean {
         var isValid = true
-        tilAmount.error = null
+        binding.tilAmount.error = null
         tilDate.error = null
 
-        if (tilAmount.editText!!.text.isEmpty()) {
-            tilAmount.error = getString(R.string.errortext_required)
+        if (binding.tilAmount.editText!!.text.isEmpty()) {
+            binding.tilAmount.error = getString(R.string.errortext_required)
             isValid = false
         }
 
@@ -132,11 +128,11 @@ class PaymentFormFragment : Fragment() {
 
     private fun savePayment() {
         payment.loan = loanViewModel.selectedLoan.value
-        payment.amount = tilAmount.editText!!.text.toString().toDouble()
+        payment.amount = binding.tilAmount.editText!!.text.toString().toDouble()
         payment.createdOn = Calendar.getInstance()
 
-        if (tilDescription.editText!!.text.isNotEmpty())
-            payment.description = tilDescription.editText!!.text.toString()
+        if (binding.tilDescription.editText!!.text.isNotEmpty())
+            payment.description = binding.tilDescription.editText!!.text.toString()
 
         val userModel = FirebaseAuth.getInstance().currentUser.toUserModel()
         payment.createdBy = userModel
@@ -150,5 +146,10 @@ class PaymentFormFragment : Fragment() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return item.onNavDestinationSelected(navController) || super.onOptionsItemSelected(item)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.NavController
@@ -15,12 +14,12 @@ import androidx.navigation.ui.setupWithNavController
 import androidx.viewpager2.widget.ViewPager2
 import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
 import com.example.loanmonitoring.R
+import com.example.loanmonitoring.activities.MainActivity
 import com.example.loanmonitoring.adapters.ViewPagerAdapter
 import com.example.loanmonitoring.databinding.FragmentLoanBinding
 import com.example.loanmonitoring.viewmodels.LoanViewModel
 import com.google.android.material.appbar.CollapsingToolbarLayout
 import com.google.android.material.appbar.MaterialToolbar
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 
@@ -29,22 +28,19 @@ class LoanFragment : Fragment() {
     private lateinit var materialToolbar: MaterialToolbar
     private lateinit var navController: NavController
     private val loanViewModel: LoanViewModel by activityViewModels()
+    private var _binding: FragmentLoanBinding? = null
+    private val binding get() = _binding!!
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         // Create binding
-        val fragmentLoanBinding = DataBindingUtil.inflate<FragmentLoanBinding>(
-            inflater,
-            R.layout.fragment_loan,
-            container,
-            false
-        )
-        fragmentLoanBinding.loanViewModel = loanViewModel
-        fragmentLoanBinding.lifecycleOwner = viewLifecycleOwner
+        _binding = FragmentLoanBinding.inflate(inflater, container, false)
+        binding.loanViewModel = loanViewModel
+        binding.lifecycleOwner = viewLifecycleOwner
 
-        return fragmentLoanBinding.root
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -57,22 +53,22 @@ class LoanFragment : Fragment() {
 
         loanViewModel.selectedLoan.observe(viewLifecycleOwner, {
             if (it.status == "FULLY PAID")
-                requireActivity().findViewById<FloatingActionButton>(R.id.fabAdd).hide()
+                (requireActivity() as MainActivity).binding.fabAdd.hide()
         })
 
         loanViewModel.fetchLoanPayments()
 
         // Set up other views
-        setUpToolbar(view)
-        setUpViewPager(view)
+        setUpToolbar()
+        setUpViewPager()
     }
 
-    private fun setUpToolbar(view: View) {
-        materialToolbar = view.findViewById(R.id.materialToolbar)
+    private fun setUpToolbar() {
+        materialToolbar = binding.materialToolbar
         navController = findNavController()
         val appBarConfiguration = AppBarConfiguration(navController.graph)
 
-        collapsingToolbarLayout = view.findViewById(R.id.collapsingToolbarLayout)
+        collapsingToolbarLayout = binding.collapsingToolbarLayout
         collapsingToolbarLayout.setupWithNavController(
             materialToolbar,
             navController,
@@ -80,9 +76,9 @@ class LoanFragment : Fragment() {
         )
     }
 
-    private fun setUpViewPager(view: View) {
+    private fun setUpViewPager() {
         // Set up ViewPager2
-        val vpLoanDetails: ViewPager2 = view.findViewById(R.id.vpLoanDetails)
+        val vpLoanDetails: ViewPager2 = binding.vpLoanDetails
         vpLoanDetails.adapter = ViewPagerAdapter(
             this,
             listOf(LoanPaymentsFragment(), LoanDetailsFragment())
@@ -92,7 +88,7 @@ class LoanFragment : Fragment() {
         vpLoanDetails.registerOnPageChangeCallback(object : OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 loanViewModel.selectedLoan.value?.let { loan ->
-                    val fabAdd = requireActivity().findViewById<FloatingActionButton>(R.id.fabAdd)
+                    val fabAdd = (requireActivity() as MainActivity).binding.fabAdd
                     if (position == 0 && loan.status == "ACTIVE") fabAdd.show()
                     else fabAdd.hide()
                 }
@@ -100,7 +96,7 @@ class LoanFragment : Fragment() {
         })
 
         // Link the TabLayout with the ViewPager2
-        val tlLoanDetails: TabLayout = view.findViewById(R.id.tlLoanDetails)
+        val tlLoanDetails: TabLayout = binding.tlLoanDetails
         TabLayoutMediator(tlLoanDetails, vpLoanDetails) { tab, position ->
             if (position == 0) tab.text = resources.getString(R.string.label_expenses)
             else tab.text = resources.getString(R.string.label_details)
@@ -115,5 +111,10 @@ class LoanFragment : Fragment() {
             .setNegativeButton("No", null)
 
         builder.create().show()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

@@ -10,23 +10,25 @@ import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.example.loanmonitoring.R
+import com.example.loanmonitoring.activities.MainActivity
 import com.example.loanmonitoring.adapters.PaymentsRvAdapter
+import com.example.loanmonitoring.databinding.FragmentLoanPaymentsBinding
 import com.example.loanmonitoring.models.Payment
 import com.example.loanmonitoring.viewmodels.LoanViewModel
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 class LoanPaymentsFragment : Fragment() {
     private lateinit var paymentsRvAdapter: PaymentsRvAdapter
     private val paymentsList = mutableListOf<Payment>()
     private val loanViewModel: LoanViewModel by activityViewModels()
+    private var _binding: FragmentLoanPaymentsBinding? = null
+    private val binding get() = _binding!!
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.fragment_loan_payments, container, false)
+    ): View {
+        _binding = FragmentLoanPaymentsBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -44,20 +46,20 @@ class LoanPaymentsFragment : Fragment() {
 
         // Set up other views
         setUpAddPaymentBtn()
-        setUpRecyclerView(view)
+        setUpRecyclerView()
     }
 
     private fun setUpAddPaymentBtn() {
-        val fabAddPayment: FloatingActionButton = requireActivity().findViewById(R.id.fabAdd)
+        val fabAddPayment = (requireActivity() as MainActivity).binding.fabAdd
         fabAddPayment.setOnClickListener(fun(_: View) {
             val action = LoanFragmentDirections.actionLoanFragmentToPaymentFormFragment()
             findNavController().navigate(action)
         })
     }
 
-    private fun setUpRecyclerView(view: View) {
+    private fun setUpRecyclerView() {
         // Set up recyclerview
-        val rvPayments = view.findViewById<RecyclerView>(R.id.rvPayments)
+        val rvPayments = binding.rvPayments
         rvPayments.layoutManager = LinearLayoutManager(context)
         rvPayments.addItemDecoration(DividerItemDecoration(context, LinearLayoutManager.VERTICAL))
 
@@ -88,5 +90,10 @@ class LoanPaymentsFragment : Fragment() {
             .setNegativeButton("Cancel", null)
 
         builder.create().show()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

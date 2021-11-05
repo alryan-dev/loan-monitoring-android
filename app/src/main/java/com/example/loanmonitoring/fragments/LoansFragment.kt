@@ -6,51 +6,63 @@ import android.view.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.onNavDestinationSelected
 import androidx.navigation.ui.setupWithNavController
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.example.loanmonitoring.R
 import com.example.loanmonitoring.activities.EntryActivity
+import com.example.loanmonitoring.activities.MainActivity
 import com.example.loanmonitoring.adapters.LoansRvAdapter
+import com.example.loanmonitoring.databinding.FragmentLoansBinding
 import com.example.loanmonitoring.models.Loan
 import com.example.loanmonitoring.viewmodels.LoanViewModel
 import com.firebase.ui.auth.AuthUI
 import com.google.android.material.appbar.MaterialToolbar
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 class LoansFragment : Fragment() {
     private val loanViewModel: LoanViewModel by activityViewModels()
     private val loansList = mutableListOf<Loan>()
     private lateinit var loansRvAdapter: LoansRvAdapter
-    private lateinit var materialToolbar: MaterialToolbar;
-    private lateinit var navController: NavController
+    private lateinit var materialToolbar: MaterialToolbar
+    private var _binding: FragmentLoansBinding? = null
+    private val binding get() = _binding!!
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        val view = inflater.inflate(R.layout.fragment_loans, container, false)
-        setUpRecyclerView(view)
+    ): View {
+        _binding = FragmentLoansBinding.inflate(inflater, container, false)
         setHasOptionsMenu(true)
+        return binding.root
+    }
 
-        // Set loans listener
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        // Set observers
         loanViewModel.loansLiveData.observe(viewLifecycleOwner, {
             loansList.clear()
             loansList.addAll(it)
             loansRvAdapter.notifyDataSetChanged()
         })
 
-        return view
+        // Set up other views
+        setUpToolbar()
+        setUpRecyclerView()
+        setUpAddLoanBtn()
     }
 
-    private fun setUpRecyclerView(view: View) {
+    private fun setUpToolbar() {
+        materialToolbar = binding.materialToolbar
+        val appBarConfiguration = AppBarConfiguration(findNavController().graph)
+        materialToolbar.setupWithNavController(findNavController(), appBarConfiguration)
+        (activity as AppCompatActivity).setSupportActionBar(materialToolbar)
+    }
+
+    private fun setUpRecyclerView() {
         // Set up recyclerview
-        val rvLoans = view.findViewById<RecyclerView>(R.id.rvLoans)
+        val rvLoans = binding.rvLoans
         rvLoans.layoutManager = LinearLayoutManager(context)
         rvLoans.addItemDecoration(DividerItemDecoration(context, LinearLayoutManager.VERTICAL))
 
@@ -65,18 +77,8 @@ class LoansFragment : Fragment() {
         rvLoans.adapter = loansRvAdapter
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        navController = findNavController()
-        val appBarConfiguration = AppBarConfiguration(navController.graph)
-        materialToolbar = view.findViewById(R.id.materialToolbar)
-        materialToolbar.setupWithNavController(navController, appBarConfiguration)
-        (activity as AppCompatActivity).setSupportActionBar(materialToolbar)
-
-        setUpAddLoanBtn()
-    }
-
     private fun setUpAddLoanBtn() {
-        val fabAddLoan: FloatingActionButton = requireActivity().findViewById(R.id.fabAdd)
+        val fabAddLoan = (requireActivity() as MainActivity).binding.fabAdd
         fabAddLoan.setOnClickListener {
             val action = LoansFragmentDirections.actionLoansFragmentToLoanFormFragment()
             findNavController().navigate(action)
@@ -100,7 +102,12 @@ class LoansFragment : Fragment() {
             true
         }
         else -> {
-            item.onNavDestinationSelected(navController) || super.onOptionsItemSelected(item)
+            item.onNavDestinationSelected(findNavController()) || super.onOptionsItemSelected(item)
         }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

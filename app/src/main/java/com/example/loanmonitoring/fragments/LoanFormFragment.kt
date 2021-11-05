@@ -5,18 +5,17 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
-import android.widget.AutoCompleteTextView
-import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
 import com.example.loanmonitoring.R
 import com.example.loanmonitoring.Utils.toUserModel
+import com.example.loanmonitoring.activities.MainActivity
+import com.example.loanmonitoring.databinding.FragmentLoanFormBinding
 import com.example.loanmonitoring.models.Loan
 import com.example.loanmonitoring.viewmodels.LoanViewModel
 import com.google.android.material.appbar.MaterialToolbar
@@ -30,54 +29,29 @@ import java.util.*
 @AndroidEntryPoint
 class LoanFormFragment : Fragment() {
     private val loanViewModel: LoanViewModel by activityViewModels()
-    private lateinit var fragmentView: View
     private var users = mutableListOf<String>()
-    private lateinit var tilAmount: TextInputLayout
     private lateinit var tilBorrower: TextInputLayout
     private lateinit var tilLender: TextInputLayout
-    private lateinit var tilDescription: TextInputLayout
     private lateinit var coordinatorLayout: CoordinatorLayout
     private lateinit var materialToolbar: MaterialToolbar
-    private lateinit var navController: NavController
+    private var _binding: FragmentLoanFormBinding? = null
+    private val binding get() = _binding!!
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        fragmentView = inflater.inflate(R.layout.fragment_loan_form, container, false)
-        initData()
-
-        // Initialize fields
-        tilAmount = fragmentView.findViewById(R.id.tilAmount)
-        tilDescription = fragmentView.findViewById(R.id.tilDescription)
-        coordinatorLayout = requireActivity().findViewById(R.id.coordinatorLayout)
-        initBorrowerLenderFields()
-
-        val btnSave = fragmentView.findViewById<Button>(R.id.btnSave)
-        btnSave.setOnClickListener {
-            if (validateForm()) saveLoan()
-        }
-
-        return fragmentView
+        _binding = FragmentLoanFormBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        navController = findNavController()
-        val appBarConfiguration = AppBarConfiguration(navController.graph)
-        materialToolbar = view.findViewById(R.id.materialToolbar)
-        materialToolbar.setupWithNavController(navController, appBarConfiguration)
-        (activity as AppCompatActivity).setSupportActionBar(materialToolbar)
-    }
-
-    private fun initData() {
-        // Fetch users and set an observer for it
+        // Set observers
         loanViewModel.usersLiveData.observe(viewLifecycleOwner, {
             users.clear()
             for (user in it) users.add(user.displayName)
         })
-        loanViewModel.fetchUsers()
 
-        // Set observer when loan is saved
         loanViewModel.loanSavedLiveData.value = false
         loanViewModel.loanSavedLiveData.observe(viewLifecycleOwner, {
             if (it) {
@@ -86,13 +60,28 @@ class LoanFormFragment : Fragment() {
                 loanViewModel.fetchLoans()
             }
         })
+
+        loanViewModel.fetchUsers()
+
+        // Set up views
+        binding.btnSave.setOnClickListener { if (validateForm()) saveLoan() }
+        coordinatorLayout = (requireActivity() as MainActivity).binding.coordinatorLayout
+        setUpToolbar()
+        setUpBorrowerLenderFields()
     }
 
-    private fun initBorrowerLenderFields() {
-        val actBorrower = fragmentView.findViewById<AutoCompleteTextView>(R.id.actBorrower)
-        tilBorrower = fragmentView.findViewById(R.id.tilBorrower)
-        val actLender = fragmentView.findViewById<AutoCompleteTextView>(R.id.actLender)
-        tilLender = fragmentView.findViewById(R.id.tilLender)
+    private fun setUpToolbar() {
+        materialToolbar = binding.materialToolbar
+        val appBarConfiguration = AppBarConfiguration(findNavController().graph)
+        materialToolbar.setupWithNavController(findNavController(), appBarConfiguration)
+        (activity as AppCompatActivity).setSupportActionBar(materialToolbar)
+    }
+
+    private fun setUpBorrowerLenderFields() {
+        val actBorrower = binding.actBorrower
+        tilBorrower = binding.tilBorrower
+        val actLender = binding.actLender
+        tilLender = binding.tilLender
 
         val adapter: ArrayAdapter<String> = ArrayAdapter<String>(
             requireContext(), android.R.layout.simple_spinner_dropdown_item, users
@@ -103,12 +92,12 @@ class LoanFormFragment : Fragment() {
 
     private fun validateForm(): Boolean {
         var isValid = true
-        tilAmount.error = null
+        binding.tilAmount.error = null
         tilBorrower.error = null
         tilLender.error = null
 
-        if (tilAmount.editText!!.text.isEmpty()) {
-            tilAmount.error = getString(R.string.errortext_required)
+        if (binding.tilAmount.editText!!.text.isEmpty()) {
+            binding.tilAmount.error = getString(R.string.errortext_required)
             isValid = false
         }
 
@@ -133,9 +122,9 @@ class LoanFormFragment : Fragment() {
 
     private fun saveLoan() {
         val loan = Loan()
-        loan.amount = tilAmount.editText!!.text.toString().toDouble()
+        loan.amount = binding.tilAmount.editText!!.text.toString().toDouble()
         loan.description =
-            if (tilDescription.editText!!.text.isNotEmpty()) tilDescription.editText!!.text.toString()
+            if (binding.tilDescription.editText!!.text.isNotEmpty()) binding.tilDescription.editText!!.text.toString()
             else ""
         loan.status = "ACTIVE"
         loan.createdBy = FirebaseAuth.getInstance().currentUser.toUserModel()
@@ -151,5 +140,10 @@ class LoanFormFragment : Fragment() {
         }
 
         loanViewModel.saveLoan(loan)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

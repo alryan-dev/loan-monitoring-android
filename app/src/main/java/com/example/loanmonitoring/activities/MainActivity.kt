@@ -8,8 +8,8 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import com.example.loanmonitoring.R
+import com.example.loanmonitoring.databinding.ActivityMainBinding
 import com.example.loanmonitoring.viewmodels.LoanViewModel
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -17,15 +17,17 @@ class MainActivity : AppCompatActivity() {
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var navController: NavController
     private val loanViewModel: LoanViewModel by viewModels()
+    lateinit var binding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         loanViewModel.fetchLoans()
-        setupAppBar()
+        setUpNavigation()
     }
 
-    private fun setupAppBar() {
+    private fun setUpNavigation() {
         val navHostFragment =
             supportFragmentManager.findFragmentById(R.id.fragmentContainerView) as NavHostFragment
         navController = navHostFragment.navController
@@ -33,12 +35,10 @@ class MainActivity : AppCompatActivity() {
 
         // Check current destination
         navController.addOnDestinationChangedListener { _, destination, _ ->
-            val fabAdd = findViewById<FloatingActionButton>(R.id.fabAdd)
-
             if (destination.id == R.id.loanFragment || destination.id == R.id.loansFragment) {
-                fabAdd.show()
+                binding.fabAdd.show()
             } else {
-                fabAdd.hide()
+                binding.fabAdd.hide()
             }
         }
     }
